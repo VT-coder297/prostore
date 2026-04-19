@@ -1,11 +1,10 @@
+// middleware.ts
 import NextAuth from 'next-auth';
-import { config as authConfig } from './auth';
+import { authConfig } from './auth.config';
+// Use the light version
 
-// This initializes the middleware with your Auth.js settings
-export const { auth: middleware } = NextAuth(authConfig);
+export default NextAuth(authConfig).auth;
 
 export const config = {
-  // This "matcher" tells Next.js: "Run middleware on everything
-  // EXCEPT images, static files, and internal Next.js data."
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images|.*\\..*).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
