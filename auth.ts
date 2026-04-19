@@ -1,20 +1,18 @@
+// auth.ts
 import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compareSync } from 'bcrypt-ts-edge';
-import type { NextAuthConfig } from 'next-auth';
+import { authConfig } from './auth.config'; // Import the shared config
 
-export const config = {
-  pages: {
-    signIn: '/sign-in',
-    error: '/sign-in',
-  },
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig, // Use the shared settings
+  adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       credentials: {
@@ -22,23 +20,16 @@ export const config = {
         password: { type: 'password' },
       },
       async authorize(credentials) {
-        if (credentials === null || credentials === undefined) return null;
-
-        // Find user in the database
+        if (!credentials?.email || !credentials?.password) return null;
         const user = await prisma.user.findFirst({
-          where: {
-            email: credentials.email as string,
-          },
+          where: { email: credentials.email as string },
         });
 
-        // Check if user exists and password matches
         if (user && user.password) {
           const isMatch = compareSync(
             credentials.password as string,
             user.password,
           );
-
-          // If password matches, return user object (without password)
           if (isMatch) {
             return {
               id: user.id,
@@ -48,25 +39,15 @@ export const config = {
             };
           }
         }
-        // If user doesn't exist or password doesn't match, return null
         return null;
       },
     }),
   ],
   callbacks: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async session({ session, user, trigger, token }: any) {
-      // Set the user ID from the token
-      session.user.id = token.sub;
-
-      // If there is an update, set the user name
-      if (trigger === 'update') {
-        session.user.name = user.name;
-      }
-
+    ...authConfig.callbacks, // Include shared callbacks
+    async session({ session, token }: any) {
+      if (token.sub) session.user.id = token.sub;
       return session;
     },
   },
-} satisfies NextAuthConfig;
-
-export const { handlers, auth, signIn, signOut } = NextAuth(config);
+});
