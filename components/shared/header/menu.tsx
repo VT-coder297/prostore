@@ -40,7 +40,7 @@ const Menu = () => {
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/sign-in">
+              <Link href="/sign-in" prefetch={false}>
                 <UserIcon /> Sign In
               </Link>
             </Button>
