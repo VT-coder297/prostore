@@ -47,7 +47,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig.callbacks, // Include shared callbacks
     async session({ session, token }: any) {
       if (token.sub) session.user.id = token.sub;
+      if (token.role) session.user.role = token.role;
+      session.user.name = session.user.name || 'Guest'; // Ensure name is always set
+
       return session;
+    },
+
+    async jwt({ token, user, trigger, session }: any) {
+      // Assign user fields to the token
+      if (user) {
+        token.role = user.role;
+
+        // if user has no name, assign email as name
+        if (user.name === 'NO_NAME') {
+          // If email is missing, it will use 'Guest' instead of crashing
+          token.name = user.email?.split('@')[0] || 'Guest';
+
+          // Update the user in the database to have a name
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: token.name },
+          });
+        }
+      }
+      return token;
     },
   },
 });
