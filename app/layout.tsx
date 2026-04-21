@@ -4,20 +4,21 @@ import '@/assets/styles/globals.css';
 import { cn } from '@/lib/utils';
 import { APP_DESCRIPTION, APP_NAME, SERVER_URL } from '@/lib/constants';
 import { ThemeProvider } from 'next-themes';
+import { Toaster } from '@/components/ui/toaster';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  icons: {
-    icon: '/favicon.ico',
-  },
   title: {
     template: `%s | Prostore`,
     default: APP_NAME,
   },
   description: APP_DESCRIPTION,
+  icons: {
+    icon: '/favicon.ico',
+  },
   metadataBase: new URL(SERVER_URL),
 };
 
@@ -40,6 +41,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

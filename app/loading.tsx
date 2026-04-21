@@ -3,15 +3,7 @@ import loader from '@/assets/loader.gif';
 
 const LoadingPage = () => {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100vw',
-      }}
-    >
+    <div className="flex h-screen w-screen items-center justify-center">
       <Image
         src={loader}
         alt="Loading..."
@@ -22,6 +14,7 @@ const LoadingPage = () => {
           height: 'auto',
         }}
         unoptimized
+        priority
       />
     </div>
   );
