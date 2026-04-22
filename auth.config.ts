@@ -1,8 +1,9 @@
 // auth.config.ts
 import type { NextAuthConfig } from 'next-auth';
+import { NextResponse } from 'next/server';
 
 export const authConfig = {
-  providers: [], // Keep empty, we add providers in auth.ts
+  providers: [],
   pages: {
     signIn: '/sign-in',
     error: '/sign-in',
@@ -10,10 +11,26 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith('/admin');
-      if (isOnDashboard) {
-        return isLoggedIn;
+      const { pathname } = nextUrl;
+
+      // Paths that require being logged in
+      const protectedPaths = [
+        '/shipping-address',
+        '/payment-method',
+        '/place-order',
+        '/profile',
+        '/user',
+        '/order',
+        '/admin',
+      ];
+
+      // Check if the current path starts with any of our protected strings
+      const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
+
+      if (isProtected && !isLoggedIn) {
+        return false; // Redirect to sign-in
       }
+
       return true;
     },
   },

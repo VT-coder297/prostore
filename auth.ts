@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compareSync } from 'bcrypt-ts-edge';
 import { authConfig } from './auth.config'; // Import the shared config
+import { cookies } from 'next/headers';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig, // Use the shared settings
@@ -56,6 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user, trigger, session }: any) {
       // Assign user fields to the token
       if (user) {
+        token.id = user.id;
         token.role = user.role;
 
         // if user has no name, assign email as name
@@ -63,13 +65,43 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // If email is missing, it will use 'Guest' instead of crashing
           token.name = user.email?.split('@')[0] || 'Guest';
 
-          // Update the user in the database to have a name
+          // Update the user in the database the token name
           await prisma.user.update({
             where: { id: user.id },
             data: { name: token.name },
           });
         }
+
+        if (trigger === 'signIn' || trigger === 'signUp') {
+          const cookiesObject = await cookies();
+          const sessionCartId = cookiesObject.get('sessionCartId')?.value;
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: { sessionCartId },
+            });
+
+            if (sessionCart) {
+              // Delete current user cart
+              await prisma.cart.deleteMany({
+                where: { userId: user.id },
+              });
+
+              // Assign new cart
+              await prisma.cart.update({
+                where: { id: sessionCart.id },
+                data: { userId: user.id },
+              });
+            }
+          }
+        }
       }
+
+      // Handle session updates
+      if (session?.user.name && trigger === 'update') {
+        token.name = session.user.name;
+      }
+
       return token;
     },
   },
