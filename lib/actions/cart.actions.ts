@@ -8,7 +8,6 @@ import { prisma } from '@/lib/prisma';
 import { CartItemSchema, insertCartSchema } from '../validators';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client';
-import { success } from 'zod';
 
 // Calculate cart prices
 const calcPrice = (items: CartItem[]) => {
@@ -135,14 +134,15 @@ export async function getMyCart() {
 
   if (!cart) return undefined;
 
-  // Convert decimals and return
+  // Convert decimals safely by adding optional chaining ?.
+  // and providing a fallback string '0' just in case.
   return convertToPlainObject({
     ...cart,
     items: cart.items as CartItem[],
-    itemsPrice: cart.itemsPrice.toString(),
-    totalPrice: cart.totalPrice.toString(),
-    shippingPrice: cart.shippingPrice.toString(),
-    taxPrice: cart.taxPrice.toString(),
+    itemsPrice: (cart.itemsPrice as any)?.toString() ?? '0',
+    totalPrice: cart.totalPrice?.toString() ?? '0',
+    shippingPrice: cart.shippingPrice?.toString() ?? '0',
+    taxPrice: cart.taxPrice?.toString() ?? '0',
   });
 }
 
