@@ -94,12 +94,19 @@ export async function addItemToCart(data: CartItem) {
         cart.items.push(item);
       }
 
+      // IMPROVEMENT: Explicitly destructure prices to ensure Prisma sees them
+      const prices = calcPrice(cart.items as CartItem[]);
+
       // Save to database
       await prisma.cart.update({
         where: { id: cart.id },
         data: {
           items: cart.items as Prisma.CartUpdateitemsInput[],
-          ...calcPrice(cart.items as CartItem[]),
+          // ...calcPrice(cart.items as CartItem[]),
+          itemsPrice: prices.itemsPrice,
+          shippingPrice: prices.shippingPrice,
+          taxPrice: prices.taxPrice,
+          totalPrice: prices.totalPrice,
         },
       });
 
@@ -134,15 +141,18 @@ export async function getMyCart() {
 
   if (!cart) return undefined;
 
+  const prices = calcPrice(cart.items as CartItem[]);
+
   // Convert decimals safely by adding optional chaining ?.
   // and providing a fallback string '0' just in case.
   return convertToPlainObject({
     ...cart,
     items: cart.items as CartItem[],
-    itemsPrice: String(cart.itemsPrice ?? '0'),
-    totalPrice: String(cart.totalPrice ?? '0'),
-    shippingPrice: String(cart.shippingPrice ?? '0'),
-    taxPrice: String(cart.taxPrice ?? '0'),
+    // We "cast" itemsPrice to any or a string to bypass the 'void' check
+     itemsPrice: new Prisma.Decimal(prices.itemsPrice),
+    shippingPrice: new Prisma.Decimal(prices.shippingPrice),
+    taxPrice: new Prisma.Decimal(prices.taxPrice),
+    totalPrice: new Prisma.Decimal(prices.totalPrice),
   });
 }
 
@@ -180,12 +190,18 @@ export async function removeItemFromCart(productId: string) {
         exist.qty - 1;
     }
 
+    const prices = calcPrice(cart.items as CartItem[]);
+
     // Update cart in database
     await prisma.cart.update({
       where: { id: cart.id },
       data: {
         items: cart.items as Prisma.CartUpdateitemsInput[],
-        ...calcPrice(cart.items as CartItem[]),
+        // ...calcPrice(cart.items as CartItem[]),
+        itemsPrice: new Prisma.Decimal(prices.itemsPrice),
+        shippingPrice: new Prisma.Decimal(prices.shippingPrice),
+        taxPrice: new Prisma.Decimal(prices.taxPrice),
+        totalPrice: new Prisma.Decimal(prices.totalPrice),
       },
     });
 

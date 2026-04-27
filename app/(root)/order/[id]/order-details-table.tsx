@@ -43,7 +43,7 @@ const OrderDetailsTable = ({
   const {
     id,
     shippingAddress,
-    orderitems,
+    orderItems,
     itemsPrice,
     shippingPrice,
     taxPrice,
@@ -184,9 +184,9 @@ const OrderDetailsTable = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orderitems.map((item) => (
+                  {orderItems.map((item) => (
                     <TableRow key={item.slug}>
-                      <TableCell>000000
+                      <TableCell>
                         <Link
                           href={`/product/${item.slug}`}
                           className="flex items-center"

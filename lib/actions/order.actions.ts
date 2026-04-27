@@ -49,16 +49,21 @@ export async function createOrder() {
         redirectTo: '/payment-method',
       };
     }
+    // Add these logs to see exactly what is entering the order object
+    console.log('CART DATA IN CREATE_ORDER:', {
+      items: cart.itemsPrice,
+      total: cart.totalPrice,
+    });
 
     // Create order object
     const order = insertOrderSchema.parse({
       userId: user.id,
       shippingAddress: user.address,
       paymentMethod: user.paymentMethod,
-      itemsPrice: cart.itemsPrice,
-      shippingPrice: cart.shippingPrice,
-      taxPrice: cart.taxPrice,
-      totalPrice: cart.totalPrice,
+      itemsPrice: cart.itemsPrice.toString(),
+      shippingPrice: cart.shippingPrice.toString(),
+      taxPrice: cart.taxPrice.toString(),
+      totalPrice: cart.totalPrice.toString(),
     });
 
     // Create a transaction to create order and order items in database
@@ -72,6 +77,7 @@ export async function createOrder() {
             ...item,
             price: item.price,
             orderId: insertedOrder.id,
+            productId: item.productId,
           },
         });
       }
@@ -110,7 +116,7 @@ export async function getOrderById(orderId: string) {
       id: orderId,
     },
     include: {
-      orderitems: true,
+      orderItems: true,
       user: { select: { name: true, email: true } },
     },
   });
@@ -220,7 +226,7 @@ export async function updateOrderToPaid({
       id: orderId,
     },
     include: {
-      orderitems: true,
+      orderItems: true,
     },
   });
 
@@ -231,7 +237,7 @@ export async function updateOrderToPaid({
   // Transaction to update order and account for product stock
   await prisma.$transaction(async (tx) => {
     // Iterate over products and update stock
-    for (const item of order.orderitems) {
+    for (const item of order.orderItems) {
       await tx.product.update({
         where: { id: item.productId },
         data: { stock: { increment: -item.qty } },
@@ -253,7 +259,7 @@ export async function updateOrderToPaid({
   const updatedOrder = await prisma.order.findFirst({
     where: { id: orderId },
     include: {
-      orderitems: true,
+      orderItems: true,
       user: { select: { name: true, email: true } },
     },
   });
