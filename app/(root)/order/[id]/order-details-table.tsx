@@ -16,27 +16,27 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
-// import {
-//   PayPalButtons,
-//   PayPalScriptProvider,
-//   usePayPalScriptReducer,
-// } from '@paypal/react-paypal-js';
-// import {
-//   createPayPalOrder,
-//   approvePayPalOrder,
-//   updateOrderToPaidCOD,
-//   deliverOrder,
-// } from '@/lib/actions/order.actions';
+import {
+  PayPalButtons,
+  PayPalScriptProvider,
+  usePayPalScriptReducer,
+} from '@paypal/react-paypal-js';
+import {
+  createPayPalOrder,
+  approvePayPalOrder,
+  // updateOrderToPaidCOD,
+  // deliverOrder,
+} from '@/lib/actions/order.actions';
 // import StripePayment from './stripe-payment';
 
 const OrderDetailsTable = ({
   order,
-  //   paypalClientId,
+    paypalClientId,
   //   isAdmin,
   //   stripeClientSecret,
 }: {
   order: Omit<Order, 'paymentResult'>;
-  //   paypalClientId: string;
+    paypalClientId: string;
   //   isAdmin: boolean;
   //   stripeClientSecret: string | null;
 }) => {
@@ -58,36 +58,36 @@ const OrderDetailsTable = ({
   const { toast } = useToast();
 
   const PrintLoadingState = () => {
-    // const [{ isPending, isRejected }] = usePayPalScriptReducer();
-    // let status = '';
+    const [{ isPending, isRejected }] = usePayPalScriptReducer();
+    let status = '';
 
-    // if (isPending) {
-    //   status = 'Loading PayPal...';
-    // } else if (isRejected) {
-    //   status = 'Error Loading PayPal';
-    // }
+    if (isPending) {
+      status = 'Loading PayPal...';
+    } else if (isRejected) {
+      status = 'Error Loading PayPal';
+    }
     return status;
   };
 
   const handleCreatePayPalOrder = async () => {
-    // const res = await createPayPalOrder(order.id);
-    // if (!res.success) {
-    //   toast({
-    //     variant: 'destructive',
-    //     description: res.message,
-    //   });
-    // }
-    // return res.data;
+    const res = await createPayPalOrder(order.id);
+    if (!res.success) {
+      toast({
+        variant: 'destructive',
+        description: res.message,
+      });
+    }
+    return res.data;
   };
 
-  //   const handleApprovePayPalOrder = async (data: { orderID: string }) => {
-  // const res = await approvePayPalOrder(order.id, data);
+    const handleApprovePayPalOrder = async (data: { orderID: string }) => {
+  const res = await approvePayPalOrder(order.id, data);
 
-  //     toast({
-  //       variant: res.success ? 'default' : 'destructive',
-  //       description: res.message,
-  //     });
-  //   };
+      toast({
+        variant: res.success ? 'default' : 'destructive',
+        description: res.message,
+      });
+    };
 
   // Button to mark order as paid
   const MarkAsPaidButton = () => {
@@ -186,7 +186,7 @@ const OrderDetailsTable = ({
                 <TableBody>
                   {orderitems.map((item) => (
                     <TableRow key={item.slug}>
-                      <TableCell>
+                      <TableCell>000000
                         <Link
                           href={`/product/${item.slug}`}
                           className="flex items-center"
@@ -234,7 +234,7 @@ const OrderDetailsTable = ({
               </div>
 
               {/* PayPal Payment */}
-              {/* {!isPaid && paymentMethod === 'PayPal' && (
+              {!isPaid && paymentMethod === 'PayPal' && (
                 <div>
                   <PayPalScriptProvider options={{ clientId: paypalClientId }}>
                     <PrintLoadingState />
@@ -244,7 +244,7 @@ const OrderDetailsTable = ({
                     />
                   </PayPalScriptProvider>
                 </div>
-              )} */}
+              )}
 
               {/* Stripe Payment */}
               {/* {!isPaid && paymentMethod === 'Stripe' && stripeClientSecret && (
