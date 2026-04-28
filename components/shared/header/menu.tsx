@@ -10,7 +10,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import UserButton from './user-button';
-import { Sign } from 'crypto';
 
 const Menu = () => {
   return (

@@ -10,7 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { CartItem, ShippingAddress, PaymentResult } from '@/types';
 import { paypal } from '../paypal';
 import { revalidatePath } from 'next/cache';
-// import { PAGE_SIZE } from '../constants';
+import { PAGE_SIZE } from '../constants';
 // import { Prisma } from '@prisma/client';
 // import { sendPurchaseReceipt } from '@/email';
 
@@ -276,32 +276,32 @@ export async function updateOrderToPaid({
 }
 
 // Get user's orders
-// export async function getMyOrders({
-//   limit = PAGE_SIZE,
-//   page,
-// }: {
-//   limit?: number;
-//   page: number;
-// }) {
-//   const session = await auth();
-//   if (!session) throw new Error('User is not authorized');
+export async function getMyOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const session = await auth();
+  if (!session) throw new Error('User is not authorized');
 
-//   const data = await prisma.order.findMany({
-//     where: { userId: session?.user?.id },
-//     orderBy: { createdAt: 'desc' },
-//     take: limit,
-//     skip: (page - 1) * limit,
-//   });
+  const data = await prisma.order.findMany({
+    where: { userId: session?.user?.id },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
 
-//   const dataCount = await prisma.order.count({
-//     where: { userId: session?.user?.id },
-//   });
+  const dataCount = await prisma.order.count({
+    where: { userId: session?.user?.id },
+  });
 
-//   return {
-//     data,
-//     totalPages: Math.ceil(dataCount / limit),
-//   };
-// }
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  };
+}
 
 // type SalesDataType = {
 //   month: string;
