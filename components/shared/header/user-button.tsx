@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Ghost, UserIcon } from 'lucide-react';
+import { UserIcon } from 'lucide-react';
 
 const UserButton = async () => {
   const session = await auth();
@@ -60,7 +60,15 @@ const UserButton = async () => {
               Order History
             </Link>
           </DropdownMenuItem>
-          0
+
+          {session?.user?.role === 'admin' && (
+            <DropdownMenuItem>
+              <Link href="/admin/overview" className="w-full">
+                Admin
+              </Link>
+            </DropdownMenuItem>
+          )}
+
           <DropdownMenuItem className="p-0 mb-1">
             <form action={signOutUser} className="w-full">
               <Button

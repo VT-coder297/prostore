@@ -24,20 +24,20 @@ import {
 import {
   createPayPalOrder,
   approvePayPalOrder,
-  // updateOrderToPaidCOD,
-  // deliverOrder,
+  updateOrderToPaidCOD,
+  deliverOrder,
 } from '@/lib/actions/order.actions';
 // import StripePayment from './stripe-payment';
 
 const OrderDetailsTable = ({
   order,
-    paypalClientId,
-  //   isAdmin,
+  paypalClientId,
+  isAdmin,
   //   stripeClientSecret,
 }: {
   order: Omit<Order, 'paymentResult'>;
-    paypalClientId: string;
-  //   isAdmin: boolean;
+  paypalClientId: string;
+  isAdmin: boolean;
   //   stripeClientSecret: string | null;
 }) => {
   const {
@@ -80,14 +80,14 @@ const OrderDetailsTable = ({
     return res.data;
   };
 
-    const handleApprovePayPalOrder = async (data: { orderID: string }) => {
-  const res = await approvePayPalOrder(order.id, data);
+  const handleApprovePayPalOrder = async (data: { orderID: string }) => {
+    const res = await approvePayPalOrder(order.id, data);
 
-      toast({
-        variant: res.success ? 'default' : 'destructive',
-        description: res.message,
-      });
-    };
+    toast({
+      variant: res.success ? 'default' : 'destructive',
+      description: res.message,
+    });
+  };
 
   // Button to mark order as paid
   const MarkAsPaidButton = () => {
@@ -100,11 +100,11 @@ const OrderDetailsTable = ({
         disabled={isPending}
         onClick={() =>
           startTransition(async () => {
-            // const res = await updateOrderToPaidCOD(order.id);
-            // toast({
-            //   variant: res.success ? 'default' : 'destructive',
-            //   description: res.message,
-            // });
+            const res = await updateOrderToPaidCOD(order.id);
+            toast({
+              variant: res.success ? 'default' : 'destructive',
+              description: res.message,
+            });
           })
         }
       >
@@ -124,11 +124,11 @@ const OrderDetailsTable = ({
         disabled={isPending}
         onClick={() =>
           startTransition(async () => {
-            // const res = await deliverOrder(order.id);
-            // toast({
-            //   variant: res.success ? 'default' : 'destructive',
-            //   description: res.message,
-            // });
+            const res = await deliverOrder(order.id);
+            toast({
+              variant: res.success ? 'default' : 'destructive',
+              description: res.message,
+            });
           })
         }
       >
@@ -256,10 +256,10 @@ const OrderDetailsTable = ({
               )} */}
 
               {/* Cash On Delivery */}
-              {/* {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
+              {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
                 <MarkAsPaidButton />
               )}
-              {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />} */}
+              {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
             </CardContent>
           </Card>
         </div>
