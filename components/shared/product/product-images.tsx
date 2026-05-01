@@ -6,18 +6,25 @@ import { cn } from '@/lib/utils';
 const ProductImages = ({ images }: { images: string[] }) => {
   const [current, setCurrent] = useState(0);
 
+  // 1. If images is undefined or empty, use a placeholder array
+  const safeImages =
+    images && images.length > 0 && images[0] !== ''
+      ? images
+      : ['/images/placeholder.jpg'];
+
   return (
     <div className="space-y-4">
       <Image
-        src={images[current]}
+        src={safeImages[current]}
         alt={`Product Image ${current + 1}`}
         width={1000}
         height={1000}
         priority
-        className="min-h-[300px] object-cover object-center"
+        className="min-h-[300px] w-full h-auto object-cover object-center"
+        style={{ height: 'auto' }}
       />
       <div className="flex gap-2">
-        {images.map((img, index) => (
+        {safeImages.map((img, index) => (
           <div
             key={index}
             onClick={() => setCurrent(index)}
@@ -31,6 +38,8 @@ const ProductImages = ({ images }: { images: string[] }) => {
               alt={`Product Image ${index + 1}`}
               width={100}
               height={100}
+              className="h-auto w-full"
+              style={{ height: 'auto' }}
             />
           </div>
         ))}

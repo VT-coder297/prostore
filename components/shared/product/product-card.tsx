@@ -10,11 +10,18 @@ const ProductCard = ({ product }: { product: Product }) => {
       <CardHeader className="p-0 items-center">
         <Link href={`/product/${product.slug}`}>
           <Image
-            src={product.images[0]}
+            src={
+              product.images && product.images[0]
+                ? product.images[0]
+                : '/images/placeholder.jpg'
+            }
             alt={product.name}
             width={300}
             height={300}
             priority={true}
+            // Added h-auto and style
+            className="h-auto w-full object-cover"
+            style={{ height: 'auto' }}
           />
         </Link>
       </CardHeader>
